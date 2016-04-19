@@ -17,7 +17,7 @@ Ariel and Marina's game architecture final project - procedural generated terrai
 6. Rivers *
 7. Snow *
 
-*Grid Size
+* Grid Size
 
   
 
