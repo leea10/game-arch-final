@@ -1,9 +1,9 @@
 # game-arch-final
-Ariel and Marina's game architecture final project - procedural generated terrain 
+Ariel and Marina's game architecture final project - procedural generated terrain
 
 ## Parameters
 
-* Maximum/minumum elvation 
+* Maximum/minumum elvation
 
 * Terrain Distribution (by percentage)
 
@@ -18,7 +18,3 @@ Ariel and Marina's game architecture final project - procedural generated terrai
 7. Snow *
 
 * Grid Size
-
-  
-
-  
