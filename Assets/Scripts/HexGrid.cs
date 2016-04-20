@@ -1,53 +1,68 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 
+[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class HexGrid : MonoBehaviour {
-
-	// Grid dimensions
-	public int width = 6;
-	public int height = 6;
+	// Colors of the tiles
+	public Color[] colorChoices;
 
 	// Prefabs
 	public HexCell cellPrefab;
 	public Text cellLabelPrefab;
 
 	// Private member variables
-	Canvas gridCanvas;
+	HexTerrainData hexTerrain;
 	HexCell[] cells;
-	HexMesh hexMesh;
+
+	/*
+	Mesh hexMesh;
+	List<Vector3> vertices;
+	List<int> triangles;
+	List<Color> colors;
+	*/
 
 	void Awake() {
-		gridCanvas = GetComponentInChildren<Canvas>();
-		cells = new HexCell[height * width];		
-		hexMesh = GetComponentInChildren<HexMesh> ();
+		hexTerrain = GetComponent<HexTerrainData>();
+		cells = new HexCell[hexTerrain.height * hexTerrain.width];	
 
-		for (int z = 0, i = 0; z < height; z++) {
-			for (int x = 0; x < width; x++) {
+		/*
+		GetComponent<MeshFilter> ().mesh = hexMesh = new Mesh ();
+		hexMesh.name = "Hex Mesh";
+		vertices = new List<Vector3> ();
+		triangles = new List<int> ();
+		colors = new List<Color> ();
+		*/
+
+		for (int z = 0, i = 0; z < hexTerrain.height; z++) {
+			for (int x = 0; x < hexTerrain.width; x++) {
 				CreateCell (x, z, i++);
 			}
 		}	
 	}
 
 	void Start() {
-		hexMesh.Triangulate (cells);
+		Triangulate ();
 	}
 
 	void CreateCell(int x, int z, int i) {
 		Vector3 position;
 
 		// x coordinate has an offset on odd rows and no offset on even rows
-		position.x = x * 2f * HexData.innerRadius + (z % 2)*HexData.innerRadius;
-		position.y = 0f;
-		position.z = z * 1.5f * HexData.outerRadius;
+		position.x = x * 2f * HexCell.innerRadius + (z % 2)*HexCell.innerRadius;
+		position.y = Random.Range(0, hexTerrain.maxElevation+1);
+		position.z = z * 1.5f * HexCell.outerRadius;
 
 		HexCell cell = cells [i] = Instantiate<HexCell> (cellPrefab);
 		cell.transform.SetParent (this.transform, false);
 		cell.transform.localPosition = position;
+		cell.color = colorChoices[Random.Range(0, colorChoices.Length)];
+	}
 
-		Text label = Instantiate<Text> (cellLabelPrefab);
-		label.rectTransform.SetParent (gridCanvas.transform, false);
-		label.rectTransform.anchoredPosition = new Vector2 (position.x, position.z);
-		label.text = x.ToString() + "\n" + z.ToString();
+	void Triangulate() {
+		for (int i = 0; i < cells.Length; i++) {
+			cells [i].Triangulate ();
+		}
 	}
 }
