@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System;
 
@@ -10,36 +10,117 @@ public class MapMaker : MonoBehaviour {
     public string seed;
     public bool useRandomSeed;
 
-    [Range(1,10)]
-    public int octaveCount;
+    [Range(1,10)] public int octaveCount;
 
-    [Range(0.1F,0.9F)]
-    public float persistance;
-
-
+    [Range(0.1F,0.9F)] public float persistance;
 
     Color[,] coloredMap;
     float[,] baseNoise;
     float[,] perlinNoise;
 
+    int[,] typeMap;
+
+    //types
+    int waterType = 0;
+    int sandType = 1;
+    int grassType = 2;
+    int mountainType = 3;
+
+    //** Terrain Options **//
+    public bool haveMountains;
+    public bool haveTrees;
+    [Range(0,10)] public int oceanLvl;
 
     void Start() {
         octaveCount = 4;
         persistance = 0.5F;
-        MakeMap();
+        MapMap();
     }
 
-    void Update() {
-        if (Input.GetMouseButtonDown(0)) {
-            MakeMap();
+    void MapMap(){
+        MakePerlinMap();
+        MakeTypeMap();
+        MakeColorMap();
+    }
+
+    public void generateButton() {
+        MapMap();
+    }
+
+    void MakeTypeMap(){
+        typeMap = new int[width,height];
+        float oceanfloat = oceanLvl / 10.0F;
+
+
+        //Mark all the spots that are water
+        for (int i = 0; i < width; i++){
+            for (int j = 0; j < height; j++){
+                if (perlinNoise[i,j] <= oceanfloat){
+                    typeMap[i,j] = waterType;
+                }
+                else{
+                    typeMap[i,j] = grassType; 
+                }
+            }
+        }
+
+        //Mark all the spots that can be sand
+        for (int i = 0; i < width; i++){
+            for (int j = 0; j < height; j++){
+                if ( (typeMap[i,j] == grassType ) && (neighborType(waterType, i, j)) ){
+                    typeMap[i,j] = sandType;
+                }
+            }
+        }
+
+
+    }
+
+    bool neighborType(int type, int x, int y){
+        if ( ( ( x!= (width-1) ) && (typeMap[x+1,y] == type) ) || 
+            ( ( y!=(height-1) ) && (typeMap[x,y+1] == type) ) || 
+            ( ( x!=(width-1) && y!=(height-1) ) && (typeMap[x+1,y+1] == type) ) || 
+            ( ( x!=(width-1) && y!=0 ) && (typeMap[x+1,y-1] == type) ) || 
+            ( ( x!=0 && y!=(height-1) ) && (typeMap[x-1,y+1] == type) ) || 
+            ( ( x!=0 ) && (typeMap[x-1,y] == type) ) || 
+            ( ( y!=0 ) && (typeMap[x,y-1] == type) ) || 
+            ( ( x!=0 && y!=0 ) && (typeMap[x-1,y-1] == type) ) ){
+            return true;
+        }
+        else {
+            return false;
         }
     }
 
-    void MakeMap() {
+
+    void MakePerlinMap() {
         baseNoise = GenerateWhiteNoise ();
         perlinNoise = GeneratePerlinNoise(baseNoise);
-        Color orange = new Color(255, 127, 0);
-        coloredMap = MapGradient(Color.green, Color.blue,perlinNoise);
+    }
+
+    void MakeColorMap(){
+        //coloredMap = MapGradient(Color.white, Color.black,perlinNoise); //colored map based on perlin noise values
+        coloredMap = MapColorType(); // colored map based on type
+    }
+
+    Color[,] MapColorType(){
+        Color[,] map = new Color[width,height];
+
+        for (int i = 0; i < width; i++){
+            for (int j = 0; j < height; j++){
+                if (typeMap[i,j] == waterType){
+                    map[i,j] = Color.blue;
+                }
+                else if (typeMap[i,j] == sandType){
+                    map[i,j] = Color.yellow;
+                }
+                else if (typeMap[i,j] == grassType){
+                    map[i,j] = Color.green;
+                }
+            }
+        }
+
+        return map;
     }
 
     void OnDrawGizmos() {
@@ -47,7 +128,7 @@ public class MapMaker : MonoBehaviour {
             for (int x = 0; x < width; x ++) {
                 for (int y = 0; y < height; y ++) {
                     Gizmos.color = coloredMap[x,y];
-                    Vector3 pos = new Vector3(-width/2 + x + .5f,0, -height/2 + y+.5f);
+                    Vector3 pos = new Vector3(-width/2 + x + .5f, -height/2 + y+.5f,0);
                     Gizmos.DrawCube(pos,Vector3.one);
                 }
             }
