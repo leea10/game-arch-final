@@ -6,43 +6,30 @@ using System.Collections.Generic;
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class HexGrid : MonoBehaviour {
 	// Colors of the tiles
-	public Color[] colorChoices;
+	public Color grassColor = new Color(1f, 1f, 1f);
+	public Color sandColor = new Color (1f, 1f, 1f);
+	public Color waterColor = new Color (1f, 1f, 1f, 0.5f);
 
 	// Prefabs
 	public HexCell cellPrefab;
 	public Text cellLabelPrefab;
 
 	// Private member variables
-	HexTerrainData hexTerrain;
+	//HexTerrainData hexTerrain;
+	MapMaker hexTerrain;
 	HexCell[] cells;
 
-	/*
-	Mesh hexMesh;
-	List<Vector3> vertices;
-	List<int> triangles;
-	List<Color> colors;
-	*/
-
 	void Awake() {
-		hexTerrain = GetComponent<HexTerrainData>();
+		hexTerrain = GetComponent<MapMaker>();
 		cells = new HexCell[hexTerrain.height * hexTerrain.width];	
+	}
 
-		/*
-		GetComponent<MeshFilter> ().mesh = hexMesh = new Mesh ();
-		hexMesh.name = "Hex Mesh";
-		vertices = new List<Vector3> ();
-		triangles = new List<int> ();
-		colors = new List<Color> ();
-		*/
-
+	void Start() {
 		for (int z = 0, i = 0; z < hexTerrain.height; z++) {
 			for (int x = 0; x < hexTerrain.width; x++) {
 				CreateCell (x, z, i++);
 			}
-		}	
-	}
-
-	void Start() {
+		}
 		Triangulate ();
 	}
 
@@ -51,13 +38,24 @@ public class HexGrid : MonoBehaviour {
 
 		// x coordinate has an offset on odd rows and no offset on even rows
 		position.x = x * 2f * HexCell.innerRadius + (z % 2)*HexCell.innerRadius;
-		position.y = Random.Range(0, hexTerrain.maxElevation+1);
+		position.y = Mathf.Floor(hexTerrain.perlinNoise[x,z] * hexTerrain.maxElevation);
 		position.z = z * 1.5f * HexCell.outerRadius;
 
 		HexCell cell = cells [i] = Instantiate<HexCell> (cellPrefab);
 		cell.transform.SetParent (this.transform, false);
 		cell.transform.localPosition = position;
-		cell.color = colorChoices[Random.Range(0, colorChoices.Length)];
+
+		switch (hexTerrain.typeMap [x,z]) {
+		case 0:
+			cell.color = waterColor;
+			break;
+		case 1: 
+			cell.color = sandColor;		
+			break;
+		case 2: 
+			cell.color = grassColor; 	
+			break;
+		}
 	}
 
 	void Triangulate() {

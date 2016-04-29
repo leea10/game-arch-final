@@ -5,7 +5,7 @@ using System.Collections.Generic;
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class HexCell : MonoBehaviour {
 	// The hexagon's outer radius, also the length of one of its sides
-	public static float outerRadius = 5f;
+	public static float outerRadius = 10f;
 
 	// The hexagon's inner radius is the outerRadius * cos(30 degrees)
 	public static float innerRadius = outerRadius * 0.866025404f;

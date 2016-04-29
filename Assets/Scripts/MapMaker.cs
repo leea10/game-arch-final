@@ -6,6 +6,7 @@ public class MapMaker : MonoBehaviour {
 
     public int width;
     public int height;
+	public int maxElevation;
 
     public string seed;
     public bool useRandomSeed;
@@ -16,9 +17,9 @@ public class MapMaker : MonoBehaviour {
 
     Color[,] coloredMap;
     float[,] baseNoise;
-    float[,] perlinNoise;
+    public float[,] perlinNoise;
 
-    int[,] typeMap;
+    public int[,] typeMap;
 
     //types
     int waterType = 0;
@@ -32,7 +33,6 @@ public class MapMaker : MonoBehaviour {
     [Range(0,10)] public int oceanLvl;
 
     void Start() {
-        octaveCount = 4;
         persistance = 0.5F;
         MapMap();
     }
