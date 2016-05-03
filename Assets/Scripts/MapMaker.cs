@@ -1,65 +1,105 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using System;
 
 public class MapMaker : MonoBehaviour {
 
+    //* User Inputs *//
     public int width;
     public int height;
-	public int maxElevation;
+    public float seaLevel;
+    public int elevationLvl;
+    public float treePercFill;
 
-    public string seed;
-    public bool useRandomSeed;
+    private int newWidth;
+    private int newHeight;
 
+    /*Debugging Inputs*/
     [Range(1,10)] public int octaveCount;
-
     [Range(0.1F,0.9F)] public float persistance;
 
-    Color[,] coloredMap;
-    float[,] baseNoise;
-    public float[,] perlinNoise;
-
+    /*Data*/
+    Color[,] coloredMap; //debugging purposes
+    public float[,] perlinMap;
     public int[,] typeMap;
+    int[,] treeMap;
+    
+    private int[,] treePercMap;
 
-    //types
-    int waterType = 0;
-    int sandType = 1;
-    int grassType = 2;
-    int mountainType = 3;
+    /*Types of Terrian*/
+    int waterTile = 0;
+    int sandTile = 1;
+    int grassTile = 2;
+    int mountainTile = 4;
 
-    //** Terrain Options **//
-    public bool haveMountains;
-    public bool haveTrees;
-    [Range(0,10)] public int oceanLvl;
-
-    void Awake() {
-        persistance = 0.5F;
-        MapMap();
+    void DefaultSettings(){
+        seaLevel = 50;
+        treePercFill = 20;
+        newWidth = 20;
+        newHeight = 20;
     }
 
-    void MapMap(){
-        MakePerlinMap();
+    void Awake() {
+        DefaultSettings();
+        MakeMap();
+    }
+
+    /*UI functions start*/
+    public void ApplyChanges(){
+        Debug.Log("Apply Changes button clicked!");
         MakeTypeMap();
+        MakeTreeMap();
         MakeColorMap();
     }
 
-    public void generateButton() {
-        MapMap();
+    public void MakeNewMap(){
+        Debug.Log("Make New Map button clicked!");
+        width = newWidth;
+        height = newHeight;
+        MakeMap();
+    }
+
+    public void WidthChanged(string newWidthtext){
+        newWidth = int.Parse(newWidthtext);
+    }
+
+    public void HeightChanged(string newHeighttext){
+        newHeight = int.Parse(newHeighttext);
+    }
+
+    public void SeaLevelChanged(float newSeaLevel){
+        seaLevel = (float)Math.Floor(newSeaLevel);
+    }
+
+    public void TreeFillChanged(float newTreePercFill){
+        treePercFill = (float)newTreePercFill;
+    }
+
+    public void ElevationChanged(string newElevationtext){
+        elevationLvl = int.Parse(newElevationtext);
+        /*ARIEL'S PART HERE*/
+    }
+
+    /*UI functions end*/
+
+    void MakeMap(){
+        MakePerlinMap(); MakeTypeMap();
+        MakeTreePercMap(); MakeTreeMap();
+        MakeColorMap();
     }
 
     void MakeTypeMap(){
         typeMap = new int[width,height];
-        float oceanfloat = oceanLvl / 10.0F;
+        float seaDecimal = seaLevel / 100.0F;
 
-
-        //Mark all the spots that are water
+        //Mark all the spots that are water/land
         for (int i = 0; i < width; i++){
             for (int j = 0; j < height; j++){
-                if (perlinNoise[i,j] <= oceanfloat){
-                    typeMap[i,j] = waterType;
+                if (perlinMap[i,j] <= seaDecimal){
+                    typeMap[i,j] = waterTile;
                 }
                 else{
-                    typeMap[i,j] = grassType; 
+                    typeMap[i,j] = grassTile; 
                 }
             }
         }
@@ -67,14 +107,38 @@ public class MapMaker : MonoBehaviour {
         //Mark all the spots that can be sand
         for (int i = 0; i < width; i++){
             for (int j = 0; j < height; j++){
-                if ( (typeMap[i,j] == grassType ) && (neighborType(waterType, i, j)) ){
-                    typeMap[i,j] = sandType;
+                if ( (typeMap[i,j] == grassTile ) && (neighborType(waterTile, i, j)) ){
+                    typeMap[i,j] = sandTile;
                 }
             }
         }
 
 
     }
+
+    void MakeTreeMap(){
+        treeMap = new int[width,height];
+        for (int i = 0; i < width; i ++) {
+                for (int j = 0; j < height; j ++) {
+                    treeMap[i,j] = ((treePercMap[i,j] < treePercFill) && (typeMap[i,j] == grassTile))? 1: 0;
+                }
+            }
+        }
+
+    void MakeTreePercMap(){
+        treePercMap = new int[width,height];
+        string seed = Time.time.ToString();
+        System.Random pseudoRandom = new System.Random(seed.GetHashCode());
+
+        for (int i = 0; i < width; i ++) {
+            for (int j = 0; j < height; j ++) {
+                //treeMap[i,j] = ((typeMap[i,j] == grassTile) && (pseudoRandom.Next(0,100) < treePercFill))? 1: 0;
+                treePercMap[i,j] = pseudoRandom.Next(0,100);
+            }
+        }
+    }
+
+  
 
     bool neighborType(int type, int x, int y){
         if ( ( ( x!= (width-1) ) && (typeMap[x+1,y] == type) ) || 
@@ -94,42 +158,47 @@ public class MapMaker : MonoBehaviour {
 
 
     void MakePerlinMap() {
-        baseNoise = GenerateWhiteNoise ();
-        perlinNoise = GeneratePerlinNoise(baseNoise);
+        float[,] baseNoise = GenerateWhiteNoise ();
+        GeneratePerlinNoise(baseNoise);
     }
 
     void MakeColorMap(){
-        //coloredMap = MapGradient(Color.white, Color.black,perlinNoise); //colored map based on perlin noise values
-        coloredMap = MapColorType(); // colored map based on type
+        //MapGradient(Color.white, Color.black); //colored map based on perlin noise values
+        MapColorType(); // colored map based on type
     }
 
-    Color[,] MapColorType(){
-        Color[,] map = new Color[width,height];
+    void MapColorType(){
+        coloredMap = new Color[width,height];
 
         for (int i = 0; i < width; i++){
             for (int j = 0; j < height; j++){
-                if (typeMap[i,j] == waterType){
-                    map[i,j] = Color.blue;
+                if (typeMap[i,j] == waterTile){
+                    coloredMap[i,j] = Color.blue;
                 }
-                else if (typeMap[i,j] == sandType){
-                    map[i,j] = Color.yellow;
+                else if (typeMap[i,j] == sandTile){
+                    coloredMap[i,j] = Color.yellow;
                 }
-                else if (typeMap[i,j] == grassType){
-                    map[i,j] = Color.green;
+                else if (typeMap[i,j] == grassTile){
+                    coloredMap[i,j] = Color.green;
                 }
             }
         }
-
-        return map;
     }
 
     void OnDrawGizmos() {
         if (coloredMap != null) {
-            for (int x = 0; x < width; x ++) {
-                for (int y = 0; y < height; y ++) {
-                    Gizmos.color = coloredMap[x,y];
-                    Vector3 pos = new Vector3(-width/2 + x + .5f, -height/2 + y+.5f,0);
+            for (int i = 0; i < width; i ++) {
+                for (int j = 0; j < height; j ++) {
+                    Gizmos.color = coloredMap[i,j];
+                    Vector3 pos = new Vector3(-width/2 + i + .5f, -height/2 + j+.5f,0);
                     Gizmos.DrawCube(pos,Vector3.one);
+                    if (treeMap != null){
+                        if (treeMap[i,j] == 1){
+                            Gizmos.color = new Color(0.00F,0.27F,0.00F,1F);
+                            Vector3 half = new Vector3(.5F,.5F,.5F);
+                            Gizmos.DrawCube(pos,half);
+                        }
+                    }
                 }
             }
         }
@@ -150,6 +219,9 @@ public class MapMaker : MonoBehaviour {
     float Interpolate(float x0, float x1, float alpha){
         return x0 * (1-alpha) + alpha * x1;
     }
+
+    //Perlin Noise Algorithm is from Herman Tulleken's code found here:
+    //http://devmag.org.za/2009/04/25/perlin-noise/
 
 	float[,] GenerateSmoothNoise(float[,] baseNoise, int octave){
 		int w = baseNoise.GetLength (0);
@@ -183,7 +255,7 @@ public class MapMaker : MonoBehaviour {
         return smoothNoise;
 	}
 
-    float[,] GeneratePerlinNoise(float[,] baseNoise){
+    void GeneratePerlinNoise(float[,] baseNoise){
         int w = baseNoise.GetLength(0);
         int h = baseNoise.GetLength(1);
 
@@ -195,7 +267,7 @@ public class MapMaker : MonoBehaviour {
             smoothNoise[i] = GenerateSmoothNoise(baseNoise,i);
         }
 
-        float[,] perlinNoise = new float[w,h];
+        perlinMap = new float[w,h];
         float amplitude = 1.0F;
         float totalAmplitude = 0.0F;
 
@@ -206,7 +278,7 @@ public class MapMaker : MonoBehaviour {
 
             for (int i = 0; i < width; i++){
                 for (int j = 0; j < height; j++){
-                    perlinNoise[i,j] += smoothNoise[octave][i,j] * amplitude;
+                    perlinMap[i,j] += smoothNoise[octave][i,j] * amplitude;
                 }
             }
         }
@@ -214,23 +286,20 @@ public class MapMaker : MonoBehaviour {
         //normalisation
         for (int i = 0; i < width; i++){
             for (int j = 0; j < height; j++){
-                perlinNoise[i,j] /= totalAmplitude;
+                perlinMap[i,j] /= totalAmplitude;
             }
         }
 
-        return perlinNoise;
     }
 
 
-    Color[,] MapGradient(Color gradientStart, Color gradientEnd, float[,] perlinNoise){
-        Color[,] image = new Color[width,height];
+    void MapGradient(Color gradientStart, Color gradientEnd){
+        coloredMap = new Color[width,height];
         for (int i = 0; i < width; i++){
             for (int j = 0; j < height; j++){
-                image[i,j] = Color.Lerp(gradientStart,gradientEnd,perlinNoise[i,j]);
+                coloredMap[i,j] = Color.Lerp(gradientStart,gradientEnd,perlinMap[i,j]);
             }
         }
-
-        return image;
     }
 
 }
