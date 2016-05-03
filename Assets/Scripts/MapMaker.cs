@@ -45,7 +45,7 @@ public class MapMaker : MonoBehaviour {
         persistance = 0.5F;  
     }
 
-    void Start() {
+    void Awake() {
         DefaultSettings();
         MakeMap();
     }
