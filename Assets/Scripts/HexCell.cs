@@ -1,9 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class HexCell : MonoBehaviour {
+
+	public enum Edge {topRight, right, bottomRight, bottomLeft, left, topLeft}
+
 	// The hexagon's outer radius, also the length of one of its sides
 	public static float outerRadius = 15f;
 
@@ -24,17 +28,22 @@ public class HexCell : MonoBehaviour {
 	List<Vector3> vertices;
 	List<int> triangles;
 	List<Color> colors;
+	public HashSet<Edge> exposedEdges;
 
 	public HexGrid.TerrainType type;
 	public Color color;
 	public Color sideColor;
+	Color waterColor;
+
 
 	void Awake() {
 		sideColor = new Color(0.62f,0.46f,0.11f);
 		GetComponent<MeshFilter> ().mesh = hexMesh = new Mesh ();
 		vertices = new List<Vector3> ();
 		triangles = new List<int> ();
-		colors = new List<Color> ();	
+		colors = new List<Color> ();
+		exposedEdges = new HashSet<Edge> ();
+		waterColor = new Color (0.23f, 0.64f, 0.78f, 0.4f);
 	}
 
 	public void generateMesh(int waterLevel) {
@@ -87,29 +96,59 @@ public class HexCell : MonoBehaviour {
 
 		// Add the top plane of water, if applicable
 		if (elevation <= waterLevel) {
-			vertexIndex = vertices.Count;
-
-			// Add the top hexagon plane of the water
-			for (int i = 0; i < 6; i++) {
-				vertices.Add (new Vector3( 
-					corners[i].x,
-					waterLevel + 0.01f - elevation,
-					corners[i].z
-				)); // Position
-				colors.Add(new Color(0.23f, 0.64f, 0.78f, 0.4f)); // Color
-			}
-
-			for (int i = 1; i <= 4; i++) {
-				triangles.Add (vertexIndex);
-				triangles.Add (vertexIndex + i);
-				triangles.Add (vertexIndex + i + 1);
-			}
+			generateWaterMesh (waterLevel);
 		}
 
 		hexMesh.vertices = vertices.ToArray ();
 		hexMesh.triangles = triangles.ToArray ();
 		hexMesh.colors = colors.ToArray ();
 		hexMesh.RecalculateNormals();
+	}
+
+	public void generateWaterMesh(int waterLevel) {
+		float elevation = getElevation ();
+		int vertexIndex = vertices.Count;
+
+		// Add the top hexagon plane of the water
+		for (int i = 0; i < 6; i++) {
+			vertices.Add (new Vector3( 
+				corners[i].x,
+				waterLevel + 0.01f - elevation,
+				corners[i].z
+			)); // Position
+			colors.Add(waterColor); // Color
+		}
+
+		for (int i = 1; i <= 4; i++) {
+			triangles.Add (vertexIndex);
+			triangles.Add (vertexIndex + i);
+			triangles.Add (vertexIndex + i + 1);
+		}
+
+		List<Edge> e = exposedEdges.ToList ();
+		int newVertexIndex = vertices.Count;
+		// Edge and corner cases, where we have to add the side planes of the water
+		for (int i = 0; i < e.Count; i++) {
+			int j = (int)e [i];
+			newVertexIndex = vertices.Count;
+
+			vertices.Add(vertices[vertexIndex + j]);
+			vertices.Add (vertices [j]);
+			vertices.Add (vertices [(j + 1)%6]);
+			vertices.Add (vertices [vertexIndex + (j + 1)%6]);
+
+			triangles.Add (newVertexIndex);
+			triangles.Add (newVertexIndex + 1);
+			triangles.Add (newVertexIndex + 2);
+
+			triangles.Add (newVertexIndex);
+			triangles.Add (newVertexIndex + 2);
+			triangles.Add (newVertexIndex + 3);
+
+			for (int k = 0; k < 4; k++) {
+				colors.Add (waterColor);
+			}
+		}
 	}
 
 	public float getElevation() {
