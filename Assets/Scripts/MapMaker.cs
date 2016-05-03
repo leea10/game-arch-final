@@ -32,7 +32,7 @@ public class MapMaker : MonoBehaviour {
     public bool haveTrees;
     [Range(0,10)] public int oceanLvl;
 
-    void Start() {
+    void Awake() {
         persistance = 0.5F;
         MapMap();
     }

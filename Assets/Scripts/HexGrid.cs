@@ -5,10 +5,12 @@ using System.Collections.Generic;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class HexGrid : MonoBehaviour {
+	public enum TerrainType {water, sand, plain}
+
 	// Colors of the tiles
 	public Color grassColor = new Color(1f, 1f, 1f);
 	public Color sandColor = new Color (1f, 1f, 1f);
-	public Color waterColor = new Color (1f, 1f, 1f, 0.5f);
+	public Color dirtColor = new Color (1f, 1f, 1f);
 
 	// Prefabs
 	public HexCell cellPrefab;
@@ -17,20 +19,24 @@ public class HexGrid : MonoBehaviour {
 	// Private member variables
 	//HexTerrainData hexTerrain;
 	MapMaker hexTerrain;
-	HexCell[] cells;
+	public HexCell[] cells;
 
 	void Awake() {
 		hexTerrain = GetComponent<MapMaker>();
-		cells = new HexCell[hexTerrain.height * hexTerrain.width];	
 	}
 
 	void Start() {
+		CreateCells ();
+	}
+
+	void CreateCells() {
+		cells = new HexCell[hexTerrain.height * hexTerrain.width];	
 		for (int z = 0, i = 0; z < hexTerrain.height; z++) {
 			for (int x = 0; x < hexTerrain.width; x++) {
 				CreateCell (x, z, i++);
 			}
 		}
-		Triangulate ();
+		generateMesh ();
 	}
 
 	void CreateCell(int x, int z, int i) {
@@ -47,20 +53,23 @@ public class HexGrid : MonoBehaviour {
 
 		switch (hexTerrain.typeMap [x,z]) {
 		case 0:
-			cell.color = waterColor;
+			cell.color = dirtColor;
+			cell.type = TerrainType.water;
 			break;
 		case 1: 
 			cell.color = sandColor;		
+			cell.type = TerrainType.sand;
 			break;
 		case 2: 
 			cell.color = grassColor; 	
+			cell.type = TerrainType.plain;
 			break;
 		}
 	}
 
-	void Triangulate() {
+	void generateMesh() {
 		for (int i = 0; i < cells.Length; i++) {
-			cells [i].Triangulate ();
+			cells [i].generateMesh ((int)(hexTerrain.oceanLvl / 10f * hexTerrain.maxElevation));
 		}
 	}
 }
