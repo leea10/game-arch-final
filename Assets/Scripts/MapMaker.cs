@@ -8,9 +8,13 @@ public class MapMaker : MonoBehaviour {
     //* User Inputs *//
     public int width;
     public int height;
+
     public float seaLevel;
     public int elevationLvl;
     public float treePercFill;
+
+	public int maxElevation;
+
 
     private int newWidth;
     private int newHeight;
@@ -24,9 +28,9 @@ public class MapMaker : MonoBehaviour {
 
     /*Data*/
     Color[,] coloredMap; //debugging purposes
-    float[,] perlinMap;
-    int[,] typeMap;
-    int[,] treeMap;
+    public float[,] perlinMap;
+    public int[,] typeMap;
+    public int[,] treeMap;
     
     private int[,] treePercMap;
 
