@@ -4,7 +4,6 @@ using System;
 
 public class MapMaker : MonoBehaviour {
 
-
     //* User Inputs *//
     public int width;
     public int height;
@@ -13,40 +12,32 @@ public class MapMaker : MonoBehaviour {
     public int elevationLvl;
     public float treePercFill;
 
-	public int maxElevation;
-
-
     private int newWidth;
     private int newHeight;
-
-    
 
     /*Debugging Inputs*/
     [Range(1,10)] public int octaveCount;
     [Range(0.1F,0.9F)] public float persistance;
-
 
     /*Data*/
     Color[,] coloredMap; //debugging purposes
     public float[,] perlinMap;
     public int[,] typeMap;
     public int[,] treeMap;
-    
+  
     private int[,] treePercMap;
 
     /*Types of Terrian*/
     int waterTile = 0;
     int sandTile = 1;
     int grassTile = 2;
-    int mountainTile = 4;
 
     void DefaultSettings(){
+        elevationLvl = 100;
         seaLevel = 50;
         treePercFill = 20;
-        newWidth = 20;
-        newHeight = 20;
-        octaveCount = 4;
-        persistance = 0.5F;  
+        newWidth = 5;
+        newHeight = 5;
     }
 
     void Awake() {
@@ -56,14 +47,12 @@ public class MapMaker : MonoBehaviour {
 
     /*UI functions start*/
     public void ApplyChanges(){
-        Debug.Log("Apply Changes button clicked!");
         MakeTypeMap();
         MakeTreeMap();
         MakeColorMap();
     }
 
     public void MakeNewMap(){
-        Debug.Log("Make New Map button clicked!");
         width = newWidth;
         height = newHeight;
         MakeMap();
@@ -195,6 +184,7 @@ public class MapMaker : MonoBehaviour {
         }
     }
 
+    /*
     void OnDrawGizmos() {
         if (coloredMap != null) {
             for (int i = 0; i < width; i ++) {
@@ -213,6 +203,7 @@ public class MapMaker : MonoBehaviour {
             }
         }
     }
+    */
 
     //GENERATE MAP WITH PERLIN NOISE //
     float[,] GenerateWhiteNoise(){

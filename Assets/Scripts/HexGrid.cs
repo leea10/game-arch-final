@@ -44,7 +44,7 @@ public class HexGrid : MonoBehaviour {
 
 		// x coordinate has an offset on odd rows and no offset on even rows
 		position.x = x * 2f * HexCell.innerRadius + (z % 2)*HexCell.innerRadius;
-		position.y = Mathf.Floor(hexTerrain.perlinMap[x,z] * hexTerrain.maxElevation);
+		position.y = Mathf.Floor(hexTerrain.perlinMap[x,z] * hexTerrain.elevationLvl);
 		position.z = z * 1.5f * HexCell.outerRadius;
 
 		HexCell cell = cells [i] = Instantiate<HexCell> (cellPrefab);
@@ -69,7 +69,7 @@ public class HexGrid : MonoBehaviour {
 
 	void generateMesh() {
 		for (int i = 0; i < cells.Length; i++) {
-			cells [i].generateMesh ((int)(hexTerrain.seaLevel / 10f * hexTerrain.maxElevation));
+			cells [i].generateMesh ((int)(hexTerrain.seaLevel / 100f * hexTerrain.elevationLvl));
 		}
 	}
 }
