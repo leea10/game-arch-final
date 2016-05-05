@@ -5,34 +5,31 @@ public class CameraOrbit : MonoBehaviour {
 
 	public Transform target;
 
-	public float rotateMove = 15f;
-	public float translMove = 45f;
-
-	void Start(){
-		Debug.Log("position of terrain = " + target.position);
-	}
+	public float rotateIncr = 15f;
+	public float translIncr = 45f;
 
 	public void translateHorizontal(bool left){
 		float dir = -1;
 		if (!left) dir *= -1;
-		transform.Translate(translMove*dir,0,0);
+		transform.Translate(translIncr*dir,0,0);
 	}
 
 	public void translateVertical(bool up){
 		float dir = 1;
 		if (!up) dir *= -1;
-		transform.Translate(0,0,translMove*dir);
+		transform.Translate(0,0,translIncr*dir);
+
 	}
 
-	public void MoveHorizontal(bool left){
+	public void RotateHorizontal(bool left){
 		float dir = 1;
 		if (!left) dir *= -1;
-		transform.RotateAround(transform.position, Vector3.up, rotateMove * dir);
+		transform.Rotate(Vector3.up, rotateIncr * dir);
 	}
 
-	public void MoveVertical(bool up){
+	public void RotateVertical(bool up){
 		float dir = 1;
 		if (!up) dir *= -1;
-		transform.RotateAround(transform.position, transform.TransformDirection(Vector3.right), rotateMove * dir);
+		transform.Rotate(Vector3.right, rotateIncr * dir);
 	}
 }
