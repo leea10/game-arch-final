@@ -33,8 +33,8 @@ public class HexCell : MonoBehaviour {
 	public HexGrid.TerrainType type;
 	public Color color;
 	public Color sideColor;
+	public bool hasTree;
 	Color waterColor;
-
 
 	void Awake() {
 		sideColor = new Color(0.62f,0.46f,0.11f);

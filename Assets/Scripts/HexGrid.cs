@@ -14,6 +14,7 @@ public class HexGrid : MonoBehaviour {
 
 	// Prefabs
 	public HexCell cellPrefab;
+	public GameObject[] treePrefabs;
 	public Text cellLabelPrefab;
 
 	// Private member variables
@@ -65,6 +66,14 @@ public class HexGrid : MonoBehaviour {
 			cell.color = grassColor; 	
 			cell.type = TerrainType.plain;
 			break;
+		}
+
+		if (hexTerrain.treeMap [x, z] == 1) {
+			int treeNum = Random.Range (0, treePrefabs.Length);
+			GameObject tree = Instantiate(treePrefabs[treeNum]);
+			tree.transform.SetParent (cell.transform);
+			tree.transform.localPosition = Vector3.zero;
+			tree.transform.localScale = new Vector3 (7f, 7f, 7f);
 		}
 
 		// Exposed edges used later for rendering the bounds of the water

@@ -22,7 +22,7 @@ public class MapMaker : MonoBehaviour {
     Color[,] coloredMap; //debugging purposes
     public float[,] perlinMap;
     public int[,] typeMap;
-    int[,] treeMap;
+    public int[,] treeMap;
     
     private int[,] treePercMap;
 
