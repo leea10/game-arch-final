@@ -36,8 +36,8 @@ public class MapMaker : MonoBehaviour {
         elevationLvl = 100;
         seaLevel = 50;
         treePercFill = 20;
-        newWidth = 5;
-        newHeight = 5;
+        newWidth = width;
+        newHeight = height;
     }
 
     void Awake() {
