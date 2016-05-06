@@ -52,7 +52,6 @@
 				float3 lightFinal = diffuseReflection + specularReflection + UNITY_LIGHTMODEL_AMBIENT.xyz;
 
 				o.col = float4(lightFinal * v.color.rgb, v.color.a);
-				//o.col = float4(lightFinal * v.color.rgb, v.color.a);
 				o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
 				return o;
 			}

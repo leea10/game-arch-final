@@ -18,7 +18,6 @@ public class HexGrid : MonoBehaviour {
 	public Text cellLabelPrefab;
 
 	// Private member variables
-	//HexTerrainData hexTerrain;
 	MapMaker hexTerrain;
 	public HexCell[] cells;
 
@@ -26,11 +25,7 @@ public class HexGrid : MonoBehaviour {
 		hexTerrain = GetComponent<MapMaker>();
 		cells = new HexCell[0];
 	}
-
-	void Start() {
-		CreateCells ();
-	}
-
+		
 	public void CreateCells() {
 		// delete all current hexcells
 		for (int i = 0; i < cells.Length; i++) {

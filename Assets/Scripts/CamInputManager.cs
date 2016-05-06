@@ -38,7 +38,6 @@ public class CamInputManager : MonoBehaviour {
 			cam.RotateVertical(false);
 		}
 		else if(Input.GetKey(KeyCode.Equals)){
-			Debug.Log("plus is clicked");
 			cam.ZoomIn(true);
 		}
 		else if(Input.GetKey(KeyCode.Minus)){

@@ -20,7 +20,6 @@ public class MapMaker : MonoBehaviour {
     [Range(0.1F,0.9F)] public float persistance;
 
     /*Data*/
-    Color[,] coloredMap; //debugging purposes
     public float[,] perlinMap;
     public int[,] typeMap;
     public int[,] treeMap;
@@ -52,14 +51,11 @@ public class MapMaker : MonoBehaviour {
     public void ApplyChanges(){
         MakeTypeMap();
         MakeTreeMap();
-        MakeColorMap();
     }
 
     public void MakeNewMap(){
-        Debug.Log("old width and height: " + width + " " + height);
         width = newWidth;
         height = newHeight;
-        Debug.Log("new width and height: " + width + " " + height);
         MakeMap();
     }
 
@@ -149,7 +145,6 @@ public class MapMaker : MonoBehaviour {
 
         for (int i = 0; i < width; i ++) {
             for (int j = 0; j < height; j ++) {
-                //treeMap[i,j] = ((typeMap[i,j] == grassTile) && (pseudoRandom.Next(0,100) < treePercFill))? 1: 0;
                 treePercMap[i,j] = pseudoRandom.Next(0,100);
             }
         }
@@ -177,29 +172,6 @@ public class MapMaker : MonoBehaviour {
     void MakePerlinMap() {
         float[,] baseNoise = GenerateWhiteNoise ();
         GeneratePerlinNoise(baseNoise);
-    }
-
-    void MakeColorMap(){
-        //MapGradient(Color.white, Color.black); //colored map based on perlin noise values
-        MapColorType(); // colored map based on type
-    }
-
-    void MapColorType(){
-        coloredMap = new Color[width,height];
-
-        for (int i = 0; i < width; i++){
-            for (int j = 0; j < height; j++){
-                if (typeMap[i,j] == waterTile){
-                    coloredMap[i,j] = Color.blue;
-                }
-                else if (typeMap[i,j] == sandTile){
-                    coloredMap[i,j] = Color.yellow;
-                }
-                else if (typeMap[i,j] == grassTile){
-                    coloredMap[i,j] = Color.green;
-                }
-            }
-        }
     }
 
     //GENERATE MAP WITH PERLIN NOISE //
@@ -291,13 +263,5 @@ public class MapMaker : MonoBehaviour {
     }
 
 
-    void MapGradient(Color gradientStart, Color gradientEnd){
-        coloredMap = new Color[width,height];
-        for (int i = 0; i < width; i++){
-            for (int j = 0; j < height; j++){
-                coloredMap[i,j] = Color.Lerp(gradientStart,gradientEnd,perlinMap[i,j]);
-            }
-        }
-    }
 
 }
