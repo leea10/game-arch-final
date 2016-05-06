@@ -24,13 +24,19 @@ public class HexGrid : MonoBehaviour {
 
 	void Awake() {
 		hexTerrain = GetComponent<MapMaker>();
+		cells = new HexCell[0];
 	}
 
 	void Start() {
 		CreateCells ();
 	}
 
-	void CreateCells() {
+	public void CreateCells() {
+		// delete all current hexcells
+		for (int i = 0; i < cells.Length; i++) {
+			Destroy (cells [i].gameObject);
+		}
+
 		cells = new HexCell[hexTerrain.height * hexTerrain.width];	
 		for (int z = 0, i = 0; z < hexTerrain.height; z++) {
 			for (int x = 0; x < hexTerrain.width; x++) {

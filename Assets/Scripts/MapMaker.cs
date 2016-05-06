@@ -86,7 +86,6 @@ public class MapMaker : MonoBehaviour {
     void MakeMap(){
         MakePerlinMap(); MakeTypeMap();
         MakeTreePercMap(); MakeTreeMap();
-        MakeColorMap();
     }
 
     void MakeTypeMap(){
