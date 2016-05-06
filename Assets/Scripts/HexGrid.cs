@@ -112,4 +112,8 @@ public class HexGrid : MonoBehaviour {
 			cells [i].generateMesh ((int)(hexTerrain.seaLevel / 100f * hexTerrain.elevationLvl));
 		}
 	}
+
+	public Transform getCenterCell() {
+		return cells [hexTerrain.height / 2 * hexTerrain.width + hexTerrain.width / 2].transform;
+	}
 }

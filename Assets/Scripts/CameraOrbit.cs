@@ -3,14 +3,14 @@ using System.Collections;
 
 public class CameraOrbit : MonoBehaviour {
 
-	Transform target;
 
+	public Transform target;
 	float rotateIncr = 1f;
 	float translIncr = 10f;
 	float zoomIncr = 5f;
 
 	public void grabTargetCell(){
-		//target = GameObject.Find("Terrain").GetComponent<HexGrid>().getCenterCell();
+		target = GameObject.Find("Terrain").GetComponent<HexGrid>().getCenterCell();
 	}
 
 	public void translateHorizontal(bool left){
@@ -34,7 +34,7 @@ public class CameraOrbit : MonoBehaviour {
 	public void RotateHorizontal(bool left){
 		float dir = -1;
 		if (!left) dir *= -1;
-		if (target!=null) transform.RotateAround(target.position, Vector3.up, rotateIncr*dir);
+		if (target!=null) transform.parent.RotateAround(target.position, Vector3.up, rotateIncr*dir);
 	}
 
 	public void RotateVertical(bool up){
