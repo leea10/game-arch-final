@@ -40,6 +40,9 @@ public class MapMaker : MonoBehaviour {
         newHeight = height;
     }
 
+    bool OptionsOpen = true;
+    public GameObject Options;
+
     void Awake() {
         DefaultSettings();
         MakeMap();
@@ -78,10 +81,24 @@ public class MapMaker : MonoBehaviour {
 
     public void ElevationChanged(string newElevationtext){
         elevationLvl = int.Parse(newElevationtext);
-        /*ARIEL'S PART HERE*/
     }
 
     /*UI functions end*/
+
+
+    void Update (){
+        if (Input.GetKeyDown(KeyCode.Space)){
+            if (OptionsOpen){ 
+                Options.SetActive(false);
+            }
+            else {
+                Options.SetActive(true); 
+            }
+            OptionsOpen = !OptionsOpen;
+        }
+    }
+
+
 
     void MakeMap(){
         MakePerlinMap(); MakeTypeMap();
