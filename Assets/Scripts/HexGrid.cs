@@ -14,6 +14,7 @@ public class HexGrid : MonoBehaviour {
 
 	// Prefabs
 	public HexCell cellPrefab;
+	public GameObject[] treePrefabs;
 	public Text cellLabelPrefab;
 
 	// Private member variables
@@ -51,6 +52,7 @@ public class HexGrid : MonoBehaviour {
 		cell.transform.SetParent (this.transform, false);
 		cell.transform.localPosition = position;
 
+		// Color and Terrain type
 		switch (hexTerrain.typeMap [x,z]) {
 		case 0:
 			cell.color = dirtColor;
@@ -64,6 +66,38 @@ public class HexGrid : MonoBehaviour {
 			cell.color = grassColor; 	
 			cell.type = TerrainType.plain;
 			break;
+		}
+
+		if (hexTerrain.treeMap [x, z] == 1) {
+			int treeNum = Random.Range (0, treePrefabs.Length);
+			GameObject tree = Instantiate(treePrefabs[treeNum]);
+			tree.transform.SetParent (cell.transform);
+			tree.transform.localPosition = Vector3.zero;
+			tree.transform.localScale = new Vector3 (7f, 7f, 7f);
+		}
+
+		// Exposed edges used later for rendering the bounds of the water
+		if (z == 0) {
+			cell.exposedEdges.Add (HexCell.Edge.bottomLeft);
+			cell.exposedEdges.Add (HexCell.Edge.bottomRight);
+		}
+		if (z == hexTerrain.height - 1) {
+			cell.exposedEdges.Add (HexCell.Edge.topLeft);
+			cell.exposedEdges.Add (HexCell.Edge.topRight);
+		}
+		if (x == 0) {
+			cell.exposedEdges.Add (HexCell.Edge.left);
+			if (x % 2 == 0) {
+				cell.exposedEdges.Add (HexCell.Edge.topLeft);
+				cell.exposedEdges.Add (HexCell.Edge.bottomLeft);
+			}
+		}
+		if (x == hexTerrain.width - 1) {
+			cell.exposedEdges.Add (HexCell.Edge.right);
+			if (x % 2 == 1) {
+				cell.exposedEdges.Add (HexCell.Edge.topRight);
+				cell.exposedEdges.Add (HexCell.Edge.bottomRight);
+			}
 		}
 	}
 

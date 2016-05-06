@@ -24,7 +24,7 @@ public class MapMaker : MonoBehaviour {
     public float[,] perlinMap;
     public int[,] typeMap;
     public int[,] treeMap;
-  
+
     private int[,] treePercMap;
 
     /*Types of Terrian*/
@@ -53,8 +53,10 @@ public class MapMaker : MonoBehaviour {
     }
 
     public void MakeNewMap(){
+        Debug.Log("old width and height: " + width + " " + height);
         width = newWidth;
         height = newHeight;
+        Debug.Log("new width and height: " + width + " " + height);
         MakeMap();
     }
 
@@ -183,27 +185,6 @@ public class MapMaker : MonoBehaviour {
             }
         }
     }
-
-    /*
-    void OnDrawGizmos() {
-        if (coloredMap != null) {
-            for (int i = 0; i < width; i ++) {
-                for (int j = 0; j < height; j ++) {
-                    Gizmos.color = coloredMap[i,j];
-                    Vector3 pos = new Vector3(-width/2 + i + .5f, -height/2 + j+.5f,0);
-                    Gizmos.DrawCube(pos,Vector3.one);
-                    if (treeMap != null){
-                        if (treeMap[i,j] == 1){
-                            Gizmos.color = new Color(0.00F,0.27F,0.00F,1F);
-                            Vector3 half = new Vector3(.5F,.5F,.5F);
-                            Gizmos.DrawCube(pos,half);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    */
 
     //GENERATE MAP WITH PERLIN NOISE //
     float[,] GenerateWhiteNoise(){
